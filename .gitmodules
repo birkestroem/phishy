@@ -1,0 +1,3 @@
+[submodule "p0f-mtu"]
+	path = p0f-mtu
+	url = git@github.com:ValdikSS/p0f-mtu.git

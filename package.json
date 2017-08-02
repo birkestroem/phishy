@@ -1,0 +1,19 @@
+{
+  "name": "phishy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "nodemon ./src/server.js"
+  },
+  "author": "Jesper Birkestrøm <jesper@birkestroem.dk>",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "2.6.8",
+    "ipaddr.js": "1.4.0",
+    "koa": "2.3.0",
+    "koa-json": "2.0.2",
+    "koa-router": "7.2.1",
+    "nodemon": "1.11.0"
+  }
+}
