@@ -1,10 +1,47 @@
-version: '2'
+version: '3'
 services:
-  web:
-    build: .
+  app:
+    image: phishy
     ports:
-     - "3000:3000"
+     - '3000:3000'
+    depends_on:
+      - redis
     volumes:
-     - src:/usr/src/app
+      - './src:/usr/src/app/src'
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '200k'
+        max-file: '10'
+
   redis:
-    image: "redis:alpine"
+    image: redis:alpine
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '200k'
+        max-file: '10'
+
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - '8080:8080'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+    deploy:
+      placement:
+        constraints: [node.role == manager]

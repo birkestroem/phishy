@@ -4,16 +4,21 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "start": "nodemon ./src/server.js"
+    "start:app": "nodemon ./src/server.js",
+    "start:daemon": "p0f -d -f /etc/p0f/p0f.fp -s /var/run/p0f.sock",
+    "start": "npm run start:daemon && npm run start:app"
   },
   "author": "Jesper Birkestrøm <jesper@birkestroem.dk>",
   "license": "ISC",
   "dependencies": {
+    "bluebird": "3.5.0",
     "debug": "2.6.8",
     "ipaddr.js": "1.4.0",
     "koa": "2.3.0",
     "koa-json": "2.0.2",
     "koa-router": "7.2.1",
-    "nodemon": "1.11.0"
+    "nodemon": "1.11.0",
+    "p0fclient-wrapper": "1.0.1",
+    "redis": "2.7.1"
   }
 }

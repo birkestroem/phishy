@@ -1,18 +1,24 @@
 const Koa = require('koa');
 const Router = require('koa-router');
 const KoaJSON = require('koa-json');
-const middlewareP0f = require('./middleware/p0f');
 const crypto = require('crypto');
 const p0f = require('p0fclient-wrapper');
+const ipaddr = require('ipaddr.js');
 const redis = require('redis');
+const bluebird = require('bluebird');
+bluebird.promisifyAll(redis.RedisClient.prototype);
+bluebird.promisifyAll(redis.Multi.prototype);
 const client = redis.createClient({ host: 'redis' });
 
 const router = new Router();
 const app = new Koa();
 
+client.on('error', function (err) {
+    //console.error('Redis error: ' + err);
+});
+
 app.proxy = true;
 app
-    .use(middlewareP0f())
     .use(KoaJSON({
         pretty: false, 
         param: 'pretty'
@@ -20,15 +26,16 @@ app
     .use(router.routes())
     .use(router.allowedMethods());
 
-router.get('/store', async (ctx) => {
-    const ip = ipaddr.parse(ctx.ip).toNormalizedString();
+router.get('/set', async (ctx) => {
+    const ip = ipaddr.parse(ctx.request.ip).toNormalizedString();
     
     try {
         const data = await p0f(ip);
-        redis.hset(ip, (data || {}).stringify(), 'EX', 10);
-    } catch (e) {}
+        client.set(ip, JSON.stringify(data || {}), 'EX', 6000);
+    } catch (e) {
+        console.error(e);
+    }
 
-    
     const bogusToken = crypto.createHash('md5').update(Date.now().toString()).digest('hex');
     ctx.body = { 
         'access': 'granted',
@@ -36,6 +43,10 @@ router.get('/store', async (ctx) => {
     };
 });
 
+router.get('/get/:ip', async (ctx) => {
+    const reply = await client.getAsync(ctx.params.ip);
+    ctx.body = JSON.parse(reply);
+});
 
 
 app.listen(3000);
