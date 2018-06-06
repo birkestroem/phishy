@@ -14,7 +14,7 @@ const router = new Router();
 const app = new Koa();
 
 client.on('error', function (err) {
-    //console.error('Redis error: ' + err);
+    console.error('Redis error: ' + err);
 });
 
 app.proxy = true;
@@ -39,7 +39,8 @@ router.get('/set', async (ctx) => {
     const bogusToken = crypto.createHash('md5').update(Date.now().toString()).digest('hex');
     ctx.body = { 
         'access': 'granted',
-        'token': bogusToken
+        'token': bogusToken,
+        'ip': ip
     };
 });
 
